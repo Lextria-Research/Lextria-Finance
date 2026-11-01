@@ -39,48 +39,30 @@ export const AUTH_MODE: 'test' | 'otp' =
 
 export const SEEDED_TEST_USERS: UserProfile[] = [
   {
-    id: 'fl-uuid-finance-lead',
-    email: 'fl@lextria-demo.test',
-    display_name: 'Ramesh Patel (Finance Lead)',
-    role: 'FINANCE',
-    department: 'FINANCE',
+    id: '5b488b59-915c-4f02-b973-748cf9a46902',
+    email: 'pranavbhat@lextria.in',
+    display_name: 'Pranav Bhat (Super Admin / Partner)',
+    role: 'SUPER_ADMIN',
+    department: 'MANAGEMENT',
     is_finance_lead: true,
     active: true,
   },
   {
-    id: 'sa1-uuid-super-admin',
-    email: 'sa1@lextria-demo.test',
-    display_name: 'Ananya Sharma (Partner / Super Admin)',
+    id: 'e8f39bd2-78d3-420a-a3ae-c1f300f45ef0',
+    email: 'sharan@lextria.in',
+    display_name: 'Sharan (Super Admin / Lead)',
     role: 'SUPER_ADMIN',
-    department: 'MANAGEMENT',
-    is_finance_lead: false,
-    active: true,
-  },
-  {
-    id: 'lithead-uuid-dept-admin',
-    email: 'lithead@lextria-demo.test',
-    display_name: 'Sanjay Deshmukh (Litigation Head / Manager)',
-    role: 'DEPT_ADMIN',
     department: 'LITIGATION',
-    is_finance_lead: false,
+    is_finance_lead: true,
     active: true,
   },
   {
-    id: 'pa1-uuid-paralegal',
-    email: 'pa1@lextria-demo.test',
-    display_name: 'Priya Sharma (Paralegal)',
-    role: 'PARALEGAL',
-    department: 'PARALEGAL',
-    is_finance_lead: false,
-    active: true,
-  },
-  {
-    id: 'staff-uuid-member',
-    email: 'staff@lextria-demo.test',
-    display_name: 'Vikram Malhotra (Staff - Reports to Sanjay)',
-    role: 'STAFF',
+    id: '9624c7c6-a467-4ea8-a986-3738bdef1278',
+    email: 'mounisha@lextria.in',
+    display_name: 'Mounisha (Super Admin / Lead)',
+    role: 'SUPER_ADMIN',
     department: 'LITIGATION',
-    is_finance_lead: false,
+    is_finance_lead: true,
     active: true,
   },
   {
@@ -95,11 +77,9 @@ export const SEEDED_TEST_USERS: UserProfile[] = [
 ];
 
 export const TEST_PASSWORDS: Record<string, string> = {
-  'fl@lextria-demo.test': 'Lx!+r9Lw#cJrM2#Jtqj',
-  'sa1@lextria-demo.test': 'Lx!2A22dDQrY7KWjamc',
-  'lithead@lextria-demo.test': 'Lx!+KFU7*m#ggKKpf!9',
-  'pa1@lextria-demo.test': 'Lx!P@r4l3g4l!99',
-  'staff@lextria-demo.test': 'Lx!St4ffM3mb3r!88',
+  'pranavbhat@lextria.in': 'Pranav@334',
+  'sharan@lextria.in': 'Sharan@334',
+  'mounisha@lextria.in': 'Mounisha@334',
   'exec@lextria-demo.test': 'Lx!Off1c3Exec!2026',
 };
 
