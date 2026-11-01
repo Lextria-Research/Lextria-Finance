@@ -18,6 +18,9 @@ import GovtFeesView from './features/govtFees/GovtFeesView';
 import ReimbursementsView from './features/reimbursements/ReimbursementsView';
 import MiscJobsView from './features/misc/MiscJobsView';
 import PettyCashView from './features/pettyCash/PettyCashView';
+import { DispatchList } from './features/dispatches/DispatchList';
+import { AddressBookView } from './features/dispatches/AddressBookView';
+import { TimelineEventsPanel } from './features/dispatches/TimelineEventsPanel';
 import SettingsView from './features/settings/SettingsView';
 import IntegrationsView from './features/admin/IntegrationsView';
 
@@ -56,6 +59,9 @@ export default function App() {
             <Route path="reimbursements" element={<ReimbursementsView />} />
             <Route path="misc-jobs" element={<MiscJobsView />} />
             <Route path="petty-cash" element={<PettyCashView />} />
+            <Route path="dispatches" element={<DispatchList />} />
+            <Route path="address-book" element={<AddressBookView />} />
+            <Route path="timeline" element={<TimelineEventsPanel />} />
             <Route path="settings" element={<SettingsView />} />
             <Route path="admin/integrations" element={<IntegrationsView />} />
           </Route>

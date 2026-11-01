@@ -83,6 +83,15 @@ export const SEEDED_TEST_USERS: UserProfile[] = [
     is_finance_lead: false,
     active: true,
   },
+  {
+    id: 'oe-uuid-office-exec',
+    email: 'exec@lextria-demo.test',
+    display_name: 'Manoj Kumar (Office Executive)',
+    role: 'OFFICE_EXEC',
+    department: 'OFFICE',
+    is_finance_lead: false,
+    active: true,
+  },
 ];
 
 export const TEST_PASSWORDS: Record<string, string> = {
@@ -91,6 +100,7 @@ export const TEST_PASSWORDS: Record<string, string> = {
   'lithead@lextria-demo.test': 'Lx!+KFU7*m#ggKKpf!9',
   'pa1@lextria-demo.test': 'Lx!P@r4l3g4l!99',
   'staff@lextria-demo.test': 'Lx!St4ffM3mb3r!88',
+  'exec@lextria-demo.test': 'Lx!Off1c3Exec!2026',
 };
 
 const LOCAL_STORAGE_USER_KEY = 'lextria_finance_active_profile';
@@ -159,6 +169,10 @@ export function isFinance(user: UserProfile | null): boolean {
 
 export function isParalegal(user: UserProfile | null): boolean {
   return getEffectiveRole(user) === 'PARALEGAL';
+}
+
+export function isOfficeExec(user: UserProfile | null): boolean {
+  return getEffectiveRole(user) === 'OFFICE_EXEC';
 }
 
 export function isSuperAdmin(user: UserProfile | null): boolean {

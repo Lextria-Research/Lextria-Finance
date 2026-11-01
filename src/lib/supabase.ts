@@ -36,4 +36,5 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 });
 
 export const financeDb = supabase.schema('finance');
+export const officeDb = supabase.schema('office');
 export const coreDb = supabase.schema('core');

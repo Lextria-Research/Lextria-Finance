@@ -46,6 +46,7 @@ export const RoleBanner: React.FC<RoleBannerProps> = ({ currentUser, onRoleChang
         >
           <option value="">Actual (SUPER_ADMIN)</option>
           <option value="FINANCE">Finance Team (FINANCE)</option>
+          <option value="OFFICE_EXEC">Office Executive (Post &amp; Petty Cash)</option>
           <option value="PARALEGAL">Paralegal (PARALEGAL)</option>
           <option value="DEPT_ADMIN">Department Admin / Manager (DEPT_ADMIN)</option>
           <option value="STAFF">Staff / Associate (STAFF)</option>

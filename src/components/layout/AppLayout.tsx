@@ -22,6 +22,8 @@ import {
   RefreshCw,
   Menu,
   X,
+  Truck,
+  Contact,
 } from 'lucide-react';
 import {
   getStoredUser,
@@ -30,6 +32,7 @@ import {
   UserProfile,
   isFinance,
   isParalegal,
+  isOfficeExec,
 } from '../../lib/auth';
 import { coreDb, financeDb, isSupabaseConfigured, supabase } from '../../lib/supabase';
 import { RoleBanner } from '../common/RoleBanner';
@@ -111,6 +114,13 @@ export const AppLayout: React.FC = () => {
   // Determine authorized nav items based on role
   const isFinUser = isFinance(currentUser);
   const isParaUser = isParalegal(currentUser);
+  const isExecUser = isOfficeExec(currentUser);
+
+  useEffect(() => {
+    if (isExecUser && window.location.pathname === '/') {
+      navigate('/dispatches', { replace: true });
+    }
+  }, [isExecUser, navigate]);
 
   const allNavItems = [
     {
@@ -118,6 +128,24 @@ export const AppLayout: React.FC = () => {
       path: '/',
       icon: LayoutDashboard,
       visible: isFinUser,
+    },
+    {
+      label: 'Post & Courier',
+      path: '/dispatches',
+      icon: Truck,
+      visible: isFinUser || isExecUser,
+    },
+    {
+      label: 'Address Book',
+      path: '/address-book',
+      icon: Contact,
+      visible: isFinUser || isExecUser,
+    },
+    {
+      label: 'Petty Cash',
+      path: '/petty-cash',
+      icon: Coins,
+      visible: isFinUser || isExecUser,
     },
     {
       label: 'Clients & Matters',
@@ -165,24 +193,18 @@ export const AppLayout: React.FC = () => {
       label: 'Govt Fees',
       path: '/govt-fees',
       icon: Landmark,
-      visible: true, // Visible to all staff (Paralegal, Associate, Finance)
+      visible: !isExecUser, // Visible to all staff (Paralegal, Associate, Finance)
     },
     {
       label: 'Reimbursements',
       path: '/reimbursements',
       icon: BadgePercent,
-      visible: !isParaUser, // All staff, managers, and finance
+      visible: !isParaUser && !isExecUser, // All staff, managers, and finance
     },
     {
       label: 'Miscellaneous Jobs',
       path: '/misc-jobs',
       icon: Briefcase,
-      visible: isFinUser,
-    },
-    {
-      label: 'Petty Cash',
-      path: '/petty-cash',
-      icon: Coins,
       visible: isFinUser,
     },
     {
