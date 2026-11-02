@@ -52,7 +52,17 @@ export const AppLayout: React.FC = () => {
   useEffect(() => {
     if (!currentUser) {
       navigate('/login');
+      return;
     }
+
+    // Verify whether an active Supabase session exists
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        console.warn('Supabase auth session is null or expired. Redirecting to universal login.');
+        signOutUser();
+        navigate('/login');
+      }
+    });
   }, [currentUser, navigate]);
 
   // Load notifications
@@ -79,10 +89,30 @@ export const AppLayout: React.FC = () => {
     setSyncing(true);
     setSyncResult(null);
     try {
+      // 1. Prioritize server-side sync endpoint /api/sync (executes with service-role authority)
+      try {
+        const apiResp = await fetch('/api/sync', { method: 'POST' });
+        if (apiResp.ok) {
+          const res = await apiResp.json();
+          const count = res.completed_count ?? 0;
+          setSyncResult(`Synced! ${count} billing stage(s) completed.`);
+          setSyncing(false);
+          setTimeout(() => setSyncResult(null), 4000);
+          return;
+        }
+      } catch {
+        // Fallback to client RPC if /api/sync is unreachable
+      }
+
+      // 2. Client-side RPC fallback
       if (isSupabaseConfigured) {
         const { data, error } = await financeDb.rpc('sync_matter_events_to_billing_stages');
         if (error) {
-          setSyncResult(`Sync error: ${error.message}`);
+          if (error.message?.includes('permission denied')) {
+            setSyncResult('Session expired. Please sign out & sign in with your Universal Account.');
+          } else {
+            setSyncResult(`Sync error: ${error.message}`);
+          }
         } else {
           const count = typeof data === 'number' ? data : (data?.completed_count ?? 0);
           setSyncResult(`Synced! ${count} billing stage(s) completed.`);

@@ -169,13 +169,39 @@ export const DashboardView: React.FC = () => {
     setSyncing(true);
     setSyncMessage(null);
     try {
-      const { data, error } = await financeDb.rpc('sync_matter_events_to_billing_stages');
-      if (error) {
-        setSyncMessage(`Sync failed: ${error.message}`);
-      } else {
-        const count = typeof data === 'number' ? data : (data?.completed_count ?? 0);
+      let syncSuccess = false;
+      let count = 0;
+
+      // 1. Try server-side sync endpoint /api/sync
+      try {
+        const apiResp = await fetch('/api/sync', { method: 'POST' });
+        if (apiResp.ok) {
+          const res = await apiResp.json();
+          count = res.completed_count ?? 0;
+          syncSuccess = true;
+        }
+      } catch {
+        // Fallback to client RPC
+      }
+
+      // 2. Client RPC fallback
+      if (!syncSuccess) {
+        const { data, error } = await financeDb.rpc('sync_matter_events_to_billing_stages');
+        if (error) {
+          if (error.message?.includes('permission denied')) {
+            setSyncMessage('Session expired. Please sign in with your Universal Account.');
+          } else {
+            setSyncMessage(`Sync failed: ${error.message}`);
+          }
+        } else {
+          count = typeof data === 'number' ? data : (data?.completed_count ?? 0);
+          syncSuccess = true;
+        }
+      }
+
+      if (syncSuccess) {
         setSyncMessage(`Sync completed: ${count} stage(s) matched and completed.`);
-        fetchDashboardData();
+        await fetchDashboardData();
       }
     } catch (err: any) {
       setSyncMessage(`Error: ${err.message}`);
