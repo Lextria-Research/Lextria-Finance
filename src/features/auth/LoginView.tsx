@@ -6,44 +6,39 @@ import {
   Mail,
   AlertCircle,
   ArrowRight,
-  ShieldCheck,
-  CheckCircle2,
   DollarSign,
-  User,
+  Eye,
+  EyeOff,
+  Shield,
+  Loader2,
 } from 'lucide-react';
-import {
-  SEEDED_TEST_USERS,
-  TEST_PASSWORDS,
-  UserProfile,
-  setStoredUser,
-} from '../../lib/auth';
+import { UserProfile, setStoredUser } from '../../lib/auth';
 import { supabase } from '../../lib/supabase';
 
 export const LoginView: React.FC = () => {
   const navigate = useNavigate();
-  const [identifier, setIdentifier] = useState('pranavbhat@lextria.in');
-  const [password, setPassword] = useState('Pranav@334');
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleRoleSelect = (user: UserProfile) => {
-    setIdentifier(user.email);
-    const pwd = TEST_PASSWORDS[user.email.toLowerCase()] || '';
-    setPassword(pwd);
-    handleDirectLogin(user.email, pwd, user);
-  };
-
-  const handleDirectLogin = async (
-    targetInput: string,
-    targetPwd: string,
-    presetProfile?: UserProfile
-  ) => {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
     setLoading(true);
     setError(null);
 
-    const cleanInput = targetInput.trim();
+    const cleanInput = identifier.trim();
+    const cleanPassword = password.trim();
+
     if (!cleanInput) {
       setError('Please provide your work email or name.');
+      setLoading(false);
+      return;
+    }
+
+    if (!cleanPassword) {
+      setError('Please enter your password.');
       setLoading(false);
       return;
     }
@@ -72,24 +67,18 @@ export const LoginView: React.FC = () => {
       const finalEmail = authEmail || cleanInput.toLowerCase();
 
       // Normalize password for legacy 334 convenience
-      let cleanPassword = targetPwd.trim();
-      if (cleanPassword === '334' && finalEmail === 'pranavbhat@lextria.in') {
-        cleanPassword = 'Pranav@334';
+      let finalPassword = cleanPassword;
+      if (finalPassword === '334' && finalEmail === 'pranavbhat@lextria.in') {
+        finalPassword = 'Pranav@334';
       }
 
-      // 2. Authenticate with Central Supabase
+      // 2. Authenticate with Central Supabase SSO
       const { data, error: authErr } = await supabase.auth.signInWithPassword({
         email: finalEmail,
-        password: cleanPassword,
+        password: finalPassword,
       });
 
       if (authErr) {
-        if (presetProfile) {
-          console.warn('Supabase auth warning, using preset profile:', authErr.message);
-          setStoredUser(presetProfile);
-          navigate('/');
-          return;
-        }
         throw new Error(authErr.message || 'Invalid email or password.');
       }
 
@@ -134,27 +123,14 @@ export const LoginView: React.FC = () => {
 
       throw new Error('No user returned from authentication.');
     } catch (err: any) {
-      if (presetProfile) {
-        setStoredUser(presetProfile);
-        navigate('/');
-        return;
-      }
       setError(err.message || 'Authentication failed. Please verify your universal credentials.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const matched = SEEDED_TEST_USERS.find(
-      (u) => u.email.toLowerCase() === identifier.trim().toLowerCase()
-    );
-    handleDirectLogin(identifier, password, matched);
-  };
-
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 selection:bg-emerald-600 selection:text-white">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
           <div className="w-12 h-12 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-black text-xl tracking-tight shadow-md shadow-emerald-600/20">
@@ -191,13 +167,10 @@ export const LoginView: React.FC = () => {
                   type="text"
                   required
                   value={identifier}
-                  onChange={(e) => {
-                    setIdentifier(e.target.value);
-                    const p = TEST_PASSWORDS[e.target.value.trim().toLowerCase()];
-                    if (p) setPassword(p);
-                  }}
+                  onChange={(e) => setIdentifier(e.target.value)}
                   placeholder="e.g. pranavbhat@lextria.in or Pranav Bhat"
-                  className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-slate-100 focus:outline-emerald-600"
+                  className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-slate-100 focus:outline-emerald-600 transition"
+                  autoFocus
                 />
               </div>
             </div>
@@ -211,23 +184,34 @@ export const LoginView: React.FC = () => {
                   <Lock className="w-4 h-4" />
                 </div>
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Universal Password"
-                  className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-slate-100 focus:outline-emerald-600 font-mono"
+                  placeholder="Enter your security password"
+                  className="w-full pl-9 pr-10 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-slate-100 focus:outline-emerald-600 transition font-mono"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-hidden disabled:opacity-50 transition cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-hidden disabled:opacity-50 transition cursor-pointer mt-2"
             >
               {loading ? (
-                <span>Authenticating with Central SSO...</span>
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Authenticating with Central SSO...</span>
+                </>
               ) : (
                 <>
                   <span>Sign In with Universal Account</span>
@@ -237,51 +221,17 @@ export const LoginView: React.FC = () => {
             </button>
           </form>
 
-          {/* Quick Universal SSO Accounts */}
-          <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-800">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3 text-center flex items-center justify-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
-              <span>1-Click Universal Accounts (Auto-Sign In)</span>
-            </div>
-            <div className="grid grid-cols-1 gap-2">
-              {SEEDED_TEST_USERS.map((user) => {
-                const isSelected = identifier.toLowerCase() === user.email.toLowerCase();
-                return (
-                  <button
-                    key={user.email}
-                    type="button"
-                    disabled={loading}
-                    onClick={() => handleRoleSelect(user)}
-                    className={`flex items-center justify-between p-2.5 rounded-lg border text-left transition cursor-pointer ${
-                      isSelected
-                        ? 'border-emerald-600 bg-emerald-50/60 dark:bg-emerald-950/40'
-                        : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-md bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold text-xs shrink-0">
-                        {user.role === 'OFFICE_EXEC' ? 'OE' : user.role === 'SUPER_ADMIN' ? 'SA' : 'FL'}
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-slate-900 dark:text-slate-100 leading-tight">
-                          {user.display_name}
-                        </div>
-                        <div className="text-[10px] text-slate-400 font-mono">{user.email}</div>
-                      </div>
-                    </div>
-                    {isSelected ? (
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                    ) : (
-                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium hover:underline">
-                        Sign In →
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
+          <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800 text-center">
+            <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400">
+              <Shield className="w-3.5 h-3.5 text-emerald-500" />
+              <span>Universal Firm Single Sign-On Enabled</span>
             </div>
           </div>
         </div>
+
+        <p className="text-center text-xs text-slate-500 mt-6">
+          Lextria Legal &amp; Financial Operating System &bull; Central Single Sign-On
+        </p>
       </div>
     </div>
   );
