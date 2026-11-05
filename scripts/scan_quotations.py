@@ -32,3 +32,4 @@ for ext, samples in files_by_ext.items():
     print(f"  [{ext}]:")
     for s in samples[:3]:
         print(f"     {s}")
+

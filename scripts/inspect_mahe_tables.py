@@ -33,3 +33,4 @@ for i, t in enumerate(get_docx_tables(addendum4_path)):
     print(f"\n--- Table {i} ---")
     for r in t:
         print(" | ".join(r))
+

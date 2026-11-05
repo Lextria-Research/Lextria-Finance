@@ -22,3 +22,4 @@ for folder, files in sorted(client_files.items())[:20]:
     print(f"\nFolder: '{folder}' ({len(files)} files)")
     for f in files[:4]:
         print(f"   {os.path.basename(f)}")
+
